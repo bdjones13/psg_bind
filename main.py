@@ -2,8 +2,7 @@ import sys
 import os
 import pandas as pd
 import numpy as np
-from test_hermes import test_hermes
-from io_helpers import parse_arguments, write_to_cache, read_from_cache
+from io_helpers import parse_arguments, write_to_cache, read_from_cache, build_feature_descriptions
 from preprocess import read_pdb_biopython, get_ligand_data
 from extract_features import extract_features_by_description
 
@@ -82,29 +81,17 @@ def main(arguments):
 
     # Get all combinations "C-C", ... "S-I"
     pro_lig_element_pairs = [f"{pro}-{lig}" for pro in pro_elements for lig in lig_elements]
-    interactions_bins = [[0, 2.5], [2.5, 3], [3, 3.5], [3.5, 4.5], [4.5, 6], [6, 12]]
-    geometric_bins = [[0, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 9]]
-    feature_descriptions = [
-        {"atom_description":"C-C",
-        "cutoff": 12,
 
-        }
-    ]
-#    feature_descriptions = build_feature_descriptions(pro_lig_element_pairs, interactions_bins, geometric_bins)
-#
-#    # label the columns in the dataframe
-#    column_labels = []
-#    for feature_description in feature_descriptions:
-#        for measurement in feature_description["measurements"]:
-#            if measurement["use_bins"]:
-#                for i in range(len(measurement["bins"])):
-#                    column_labels.append(f"""{measurement["label"]}bin{i}""")
-#            else:
-#                column_labels.append(measurement["label"])
+    statistics_list = ["mean", "sum", "max", "SD", "Var", "Sec"]
+    feature_descriptions = build_feature_descriptions(pro_lig_element_pairs, statistics_list)
+   # label the columns in the dataframe
+    column_labels = []
+    for feature_description in feature_descriptions:
+        for measurement in feature_description["measurements"]:
+            column_labels.append(measurement["label"])
 #    if use_cache:
 #        all_features = read_from_cache(all_df, column_labels)
 #    else:
-    column_labels = ["placeholder"]
     all_features = pd.DataFrame(np.nan, index=all_df.id, columns=column_labels)
 
     # process the complexes in parallel

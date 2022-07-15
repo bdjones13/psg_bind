@@ -1,12 +1,7 @@
-import pandas as pd
-import os
 import numpy as np
 import math
 from get_atom_group import get_atom_group
-import csv
-import shutil
-#from distance_matrix import distance_matrix
-#from get_tf import get_tf
+from get_spectra import get_spectra
 
 
 class TF_Bin:
@@ -72,41 +67,14 @@ def get_binned(dgms, i, bin_bounds, direction):
 
     return tf_bins
 
-def atom_group_to_xyz(P,filename):
-    xyz = P[:,0:3]
-    np.savetxt(filename,xyz)
-    return 
-
-def get_spectrum(filename):
-    with open(filename) as fp:
-        line_lists = []
-        for line in fp.readlines():
-            line_list = line.split()  # turn into list
-            line_list = [round(float(line_elt),5) for line_elt in line_list]  # convert str to float
-            line_lists.append(line_list)
-
-    # make uniform length by right-padding with NaN
-    max_len = max([len(line_list) for line_list in line_lists])
-    for line_list in line_lists:
-        while len(line_list) < max_len:  #TODO: would be more efficient to calculate number of NaN then do a for loop
-            line_list.append(np.nan)
-
-    spectrum_df = pd.DataFrame(line_lists)
-    return spectrum_df
-        
-
-def read_spectra():
-    filenames = ["snapshots_vertex.txt", "snapshots_edge.txt", "snapshots_facet.txt"]
-    filenames = [filename for filename in filenames]
-    spectra = []
-
-    for filename in filenames:
-        spectrum_df = get_spectrum(filename)
-        spectra.append(spectrum_df)
-    return spectra 
-
+def get_sec(x):
+    nonzero = x.to_numpy().nonzero()
+    if len(nonzero[0]) == 0:
+        return np.nan
+    return x.iloc[nonzero[0][0]]
 
 def get_spectrum_statistic(spectrum,alpha):
+    # TODO: is this over all eigenvalues or only the nonzero?
     if alpha == "mean":
         return spectrum.mean(axis=1, skipna=True)
     elif alpha == "sum":
@@ -114,15 +82,16 @@ def get_spectrum_statistic(spectrum,alpha):
     elif alpha == "max":
         return spectrum.max(axis=1,skipna=True)
     elif alpha == "SD":
-        print("placeholder")
+        return spectrum.std(axis=1,skipna=True)
     elif alpha == "Var":
-        print("placeholder")
+        return spectrum.var(axis=1,skipna=True)
     elif alpha == "Sec":
         # min nonzero element in each row
         # apply to each row a function that gets the first nonzero element
-        spectrum.apply(lambda x: x.iloc[x.to_numpy().nonzero() [0][0]], axis=1)
+        return spectrum.apply(lambda x: get_sec(x),axis=1)
+        # spectrum.apply(lambda x: x.iloc[x.to_numpy().nonzero() [0][0]], axis=1)
     elif alpha == "Top":
-        print("placeholder")
+        return -2
         # count of zero elements in each row
     else:
         raise Exception("invalid spectrum statistic")
@@ -134,47 +103,28 @@ def get_area_under_plot(persistent_statistic, delta_r):
             cumulative = cumulative + statistic * delta_r
     return cumulative
 
-def get_spectra(P, pdbid):
-
-    # make temporary directory, call HERMES, read in spectra, and delete the temporary files
-    os.makedirs(f"temp/{pdbid}")
-    os.chdir(f"temp/{pdbid}")
-
-    # setup input for HERMES
-    filtration = [0.01*i for i in range(1600)]
-    filtration_filename = "filtration.txt"
-    with open(filtration_filename, 'w') as f:
-        write = csv.writer(f, delimiter=' ')
-        write.writerow(filtration)
-    xyz_filename = f"{pdbid}.xyz"
-    atom_group_to_xyz(P,xyz_filename)
-
-    # TODO: replace with call to HERMES
-    shutil.copy("../../test/one_complex/snapshots_vertex.txt","snapshots_vertex.txt")
-    shutil.copy("../../test/one_complex/snapshots_edge.txt","snapshots_edge.txt")
-    shutil.copy("../../test/one_complex/snapshots_facet.txt","snapshots_facet.txt")
-    # os.system(f"hermes {xyz_filename} {filtration_filename} 100 0.01")
-    spectra = read_spectra()
-
-    # clean up
-    os.chdir("../..")
-    shutil.rmtree(f"temp/{pdbid}")
-
-    return spectra
 
 def extract_feature(protein, ligand, feature, pdbid):
     P = get_atom_group(feature["atom_description"], feature["cutoff"],protein,ligand)
-    pdbid = "temp"
+    measurements = []
+    # if no atoms in group, return all 0
+    if len(P) == 0:
+        for measurement in feature["measurements"]:
+            measurements.append(0)
+        return measurements
+
     spectra = get_spectra(P, pdbid)
 
-
-
-    alpha = "mean"  # mean, sum, max, SD, variance of eigen, Sec= lambda_2
-    i = 1
-    persistent_statistic = get_spectrum_statistic(spectra[i],alpha)
-    delta_r = 0.01
-    area = get_area_under_plot(persistent_statistic,delta_r)
-    return [area]
+    measurements = []
+    for measurement in feature["measurements"]:
+        persistent_statistic = get_spectrum_statistic(spectra[measurement["dim"]],measurement["statistic"])
+        if measurement["value"] == "integral":
+            delta_r = 0.01
+            area = get_area_under_plot(persistent_statistic,delta_r)
+        else:
+            raise Exception("invalid measurement value (use 'integral').")
+        measurements.append(area)
+    return measurements
     # Get topological fingerprint
 #    if feature["is_vr"]:
 #        # Get distance matrix
