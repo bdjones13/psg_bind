@@ -3,9 +3,10 @@ import os
 import pandas as pd
 import numpy as np
 from test_hermes import test_hermes
-from io_helpers import parse_arguments
+from io_helpers import parse_arguments, write_to_cache, read_from_cache
 from preprocess import read_pdb_biopython, get_ligand_data
 from extract_features import extract_features_by_description
+
 def compute_features(df, pro_elements, pro_ele_rad, directory, lig_elements, lig_ele_rad, feature_descriptions):
     for index, row in df.iterrows():
         pdbid = index
@@ -30,7 +31,7 @@ def compute_features(df, pro_elements, pro_ele_rad, directory, lig_elements, lig
 #                    break
 #
 #            if not all_measured:
-             features = features + extract_features_by_description(protein,ligand, feature)
+             features = features + extract_features_by_description(protein,ligand, feature,pdbid)
 #            else:
 #                for measurement in feature["measurements"]:
 #                    if measurement["use_bins"]:

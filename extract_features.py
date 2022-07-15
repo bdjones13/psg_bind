@@ -3,6 +3,8 @@ import os
 import numpy as np
 import math
 from get_atom_group import get_atom_group
+import csv
+import shutil
 #from distance_matrix import distance_matrix
 #from get_tf import get_tf
 
@@ -93,10 +95,9 @@ def get_spectrum(filename):
     return spectrum_df
         
 
-def get_spectra():
-    directory = "test/one_complex/"
+def read_spectra():
     filenames = ["snapshots_vertex.txt", "snapshots_edge.txt", "snapshots_facet.txt"]
-    filenames = [directory + filename for filename in filenames]
+    filenames = [filename for filename in filenames]
     spectra = []
 
     for filename in filenames:
@@ -133,16 +134,42 @@ def get_area_under_plot(persistent_statistic, delta_r):
             cumulative = cumulative + statistic * delta_r
     return cumulative
 
-def extract_feature(protein, ligand, feature):
-    P = get_atom_group(feature["atom_description"], feature["cutoff"],protein,ligand)
-    #TODO: write to .xyz file and call HERMES
-    xyz_filename = "temp.xyz"
-    filtration_filename = "test/hermes_example/filtration.txt"
-    atom_group_to_xyz(P,xyz_filename)
-    # os.system(f"hermes {xyz_filename} {filtration_filename} 100 0.4") 
-    spectra = get_spectra()
+def get_spectra(P, pdbid):
 
-    alpha = "mean" # mean, sum, max, SD, variance of eigen, Sec= lambda_2
+    # make temporary directory, call HERMES, read in spectra, and delete the temporary files
+    os.makedirs(f"temp/{pdbid}")
+    os.chdir(f"temp/{pdbid}")
+
+    # setup input for HERMES
+    filtration = [0.01*i for i in range(1600)]
+    filtration_filename = "filtration.txt"
+    with open(filtration_filename, 'w') as f:
+        write = csv.writer(f, delimiter=' ')
+        write.writerow(filtration)
+    xyz_filename = f"{pdbid}.xyz"
+    atom_group_to_xyz(P,xyz_filename)
+
+    # TODO: replace with call to HERMES
+    shutil.copy("../../test/one_complex/snapshots_vertex.txt","snapshots_vertex.txt")
+    shutil.copy("../../test/one_complex/snapshots_edge.txt","snapshots_edge.txt")
+    shutil.copy("../../test/one_complex/snapshots_facet.txt","snapshots_facet.txt")
+    # os.system(f"hermes {xyz_filename} {filtration_filename} 100 0.01")
+    spectra = read_spectra()
+
+    # clean up
+    os.chdir("../..")
+    shutil.rmtree(f"temp/{pdbid}")
+
+    return spectra
+
+def extract_feature(protein, ligand, feature, pdbid):
+    P = get_atom_group(feature["atom_description"], feature["cutoff"],protein,ligand)
+    pdbid = "temp"
+    spectra = get_spectra(P, pdbid)
+
+
+
+    alpha = "mean"  # mean, sum, max, SD, variance of eigen, Sec= lambda_2
     i = 1
     persistent_statistic = get_spectrum_statistic(spectra[i],alpha)
     delta_r = 0.01
@@ -181,9 +208,9 @@ def extract_feature(protein, ligand, feature):
 #
 #    return measurements
 
-def extract_features_by_description(protein, ligand, feature):
+def extract_features_by_description(protein, ligand, feature, pdbid):
     # features = []
     # for feature in feature_descriptions:
     
-    return extract_feature(protein, ligand, feature)
+    return extract_feature(protein, ligand, feature, pdbid)
 
