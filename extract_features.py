@@ -76,13 +76,27 @@ def atom_group_to_xyz(P,filename):
     return 
 
 def get_spectrum(filename):
-    spectrum_df = pd.read_csv(filename,delim_whitespace=True)
-    print(spectrum_df)
+    with open(filename) as fp:
+        line_lists = []
+        for line in fp.readlines():
+            line_list = line.split()  # turn into list
+            line_list = [round(float(line_elt),5) for line_elt in line_list]  # convert str to float
+            line_lists.append(line_list)
+
+    # make uniform length by right-padding with NaN
+    max_len = max([len(line_list) for line_list in line_lists])
+    for line_list in line_lists:
+        while len(line_list) < max_len:  #TODO: would be more efficient to calculate number of NaN then do a for loop
+            line_list.append(np.nan)
+
+    spectrum_df = pd.DataFrame(line_lists)
     return spectrum_df
         
 
 def get_spectra():
+    directory = "test/one_complex/"
     filenames = ["snapshots_vertex.txt", "snapshots_edge.txt", "snapshots_facet.txt"]
+    filenames = [directory + filename for filename in filenames]
     spectra = []
 
     for filename in filenames:
@@ -91,6 +105,33 @@ def get_spectra():
     return spectra 
 
 
+def get_spectrum_statistic(spectrum,alpha):
+    if alpha == "mean":
+        return spectrum.mean(axis=1, skipna=True)
+    elif alpha == "sum":
+        return spectrum.sum(axis=1, skipna=True)
+    elif alpha == "max":
+        return spectrum.max(axis=1,skipna=True)
+    elif alpha == "SD":
+        print("placeholder")
+    elif alpha == "Var":
+        print("placeholder")
+    elif alpha == "Sec":
+        # min nonzero element in each row
+        # apply to each row a function that gets the first nonzero element
+        spectrum.apply(lambda x: x.iloc[x.to_numpy().nonzero() [0][0]], axis=1)
+    elif alpha == "Top":
+        print("placeholder")
+        # count of zero elements in each row
+    else:
+        raise Exception("invalid spectrum statistic")
+
+def get_area_under_plot(persistent_statistic, delta_r):
+    cumulative = 0.0
+    for statistic in persistent_statistic:
+        if not np.isnan(statistic):
+            cumulative = cumulative + statistic * delta_r
+    return cumulative
 
 def extract_feature(protein, ligand, feature):
     P = get_atom_group(feature["atom_description"], feature["cutoff"],protein,ligand)
@@ -100,8 +141,13 @@ def extract_feature(protein, ligand, feature):
     atom_group_to_xyz(P,xyz_filename)
     # os.system(f"hermes {xyz_filename} {filtration_filename} 100 0.4") 
     spectra = get_spectra()
-    
 
+    alpha = "mean" # mean, sum, max, SD, variance of eigen, Sec= lambda_2
+    i = 1
+    persistent_statistic = get_spectrum_statistic(spectra[i],alpha)
+    delta_r = 0.01
+    area = get_area_under_plot(persistent_statistic,delta_r)
+    return [area]
     # Get topological fingerprint
 #    if feature["is_vr"]:
 #        # Get distance matrix
@@ -139,7 +185,5 @@ def extract_features_by_description(protein, ligand, feature):
     # features = []
     # for feature in feature_descriptions:
     
-    extract_feature(protein, ligand, feature)
-    return [0]
-    # features = features + extract_feature(protein, ligand, feature)
-    # return np.array(features)
+    return extract_feature(protein, ligand, feature)
+
