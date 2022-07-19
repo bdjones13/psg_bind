@@ -74,7 +74,7 @@ def main(arguments):
     # Get all combinations "C-C", ... "S-I"
     pro_lig_element_pairs = [f"{pro}-{lig}" for pro in pro_elements for lig in lig_elements]
 
-    statistics_list = ["mean", "sum", "max", "SD", "Var", "Sec"]
+    statistics_list = ["mean", "sum", "max", "SD", "Var", "Sec","Top"]
     feature_descriptions = build_feature_descriptions(pro_lig_element_pairs, statistics_list)
     # label the columns in the dataframe
     column_labels = []

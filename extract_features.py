@@ -95,9 +95,11 @@ def get_spectrum_statistic(spectrum, alpha):
         # apply to each row a function that gets the first nonzero element
         return spectrum.apply(lambda x: get_sec(x), axis=1)
     elif alpha == "Top":
-        # TODO: top
-        return -2
         # count of zero elements in each row
+        # get boolean index matrix, cast to int (1 if 0 value, else 0), and count by row
+        # nonzero values -> False -> 0 -> do not count to sum
+        # zero values -> True -> 1 -> do count to sum
+        return (spectrum == 0).astype(int).sum(axis=1)
     else:
         raise Exception("invalid spectrum statistic")
 

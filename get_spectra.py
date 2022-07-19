@@ -42,6 +42,7 @@ def read_spectra():
 
 def get_spectra(P, pdbid, delta_r, min_r, filtration_count):
     # make temporary directory, call HERMES, read in spectra, and delete the temporary files
+    print(f"{pdbid}: get spectra",flush=True)
     if os.path.isdir(f"temp/{pdbid}"):
         shutil.rmtree(f"temp/{pdbid}")
 
