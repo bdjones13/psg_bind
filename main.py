@@ -53,8 +53,8 @@ def main(arguments):
     refined_df = pd.read_csv("input/v2007_refine_list.csv")
 
     # un-comment to limit tests to fewer proteins
-    refined_df = refined_df[0:5]
-    core_df = core_df[0:5]
+    refined_df = refined_df[0:1]
+    core_df = core_df[0:1]
 
     # combine refined set and core set for calculating. Will be separated later for training
     #  and testing the random forest

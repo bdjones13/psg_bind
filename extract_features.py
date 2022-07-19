@@ -1,7 +1,7 @@
 import numpy as np
 # import math
 from get_atom_group import get_atom_group
-from get_spectra import get_spectra
+from get_spectra import get_spectra, get_persistent_betti_small_points
 
 
 # class TF_Bin:
@@ -119,6 +119,19 @@ def extract_feature(protein, ligand, feature, pdbid):
     if len(P) == 0:
         for _ in feature["measurements"]:
             measurements.append(0)
+        return measurements
+    if len(P) <= 3:
+        for measurement in feature["measurements"]:
+            if measurement["statistic"] != "Top":
+                # alpha complex not defined for <= 3 points, so non-harmonic specra all 0.
+                measurements.append(0)
+            else:
+                persistent_betti = get_persistent_betti_small_points(P,feature["delta_r"], feature["min_r"], feature["filtration_count"])
+                if measurement["value"] == "integral":
+                    area = get_area_under_plot(persistent_betti[0],feature["delta_r"])
+                    measurements.append(area)
+                else:
+                    raise Exception("invalid measurement value (use 'integral').") # TODO: implement Top feature
         return measurements
 
     spectra = get_spectra(P, pdbid, feature["delta_r"], feature["min_r"], feature["filtration_count"])

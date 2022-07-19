@@ -70,3 +70,56 @@ def get_spectra(P, pdbid, delta_r, min_r, filtration_count):
     shutil.rmtree(f"temp/{pdbid}")
 
     return spectra
+
+
+def get_persistent_betti_small_points(P, delta_r, min_r, filtration_count):
+    # need 3 series of length filtration_count, betti0, betti1, betti2. Betti1 and 2 both all zero.
+    betti_1 = np.zeros([1,filtration_count])
+    betti_2 = np.zeros([1,filtration_count])
+    if len(P) == 1:
+        betti_0 = np.ones([1,filtration_count])
+    elif len(P) == 2:
+        # number components = 2 until r = distance, then 1
+        a = P[0,:]
+        b = P[1,:]
+        dist = np.sqrt(
+            np.power(a[0] - b[0], 2)
+            + np.power(a[1] - b[1], 2)
+            + np.power(a[2] - b[2], 2)
+        )
+        dist_steps = int((dist-min_r)/delta_r)
+        components_2 = 2*np.ones([dist_steps, 1])
+        components_1 = np.ones([filtration_count-dist_steps, 1])
+        betti_0 = np.concatenate([components_2, components_1], axis=0)
+    elif len(P) == 3:
+        # number components = 3 until r = min(distance, then 1
+        a = P[0, :]
+        b = P[1, :]
+        c = P[2, :]
+        dist1 = np.sqrt(
+            np.power(a[0] - b[0], 2)
+            + np.power(a[1] - b[1], 2)
+            + np.power(a[2] - b[2], 2)
+        )
+        dist2 = np.sqrt(
+            np.power(a[0] - c[0], 2)
+            + np.power(a[1] - c[1], 2)
+            + np.power(a[2] - c[2], 2)
+        )
+        dist3 = np.sqrt(
+            np.power(b[0] - c[0], 2)
+            + np.power(b[1] - c[1], 2)
+            + np.power(b[2] - c[2], 2)
+        )
+        distances = sorted([dist1,dist2,dist3])
+
+        dist_steps1 = int((distances[0] - min_r) / delta_r)
+        dist_steps2 = int((distances[1] - distances[0]) / delta_r)
+
+        components_3 = 3 * np.ones([dist_steps1, 1])
+        components_2 = 2 * np.ones([dist_steps2, 1])
+        components_1 = np.ones([filtration_count - dist_steps2, 1])
+        betti_0 = np.concatenate([components_3, components_2, components_1], axis=0)
+    else:
+        raise Exception(f"get_persistent_betti_small_points called with incorrect number of points: {len(P)}")
+    return [betti_0,betti_1,betti_2]
