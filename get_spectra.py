@@ -42,10 +42,14 @@ def read_spectra():
 
 def get_spectra(P, pdbid):
     # make temporary directory, call HERMES, read in spectra, and delete the temporary files
+    if os.path.isdir(f"temp/{pdbid}"):
+        shutil.rmtree(f"temp/{pdbid}")
+
     os.makedirs(f"temp/{pdbid}")
     os.chdir(f"temp/{pdbid}")
 
     # setup input for HERMES
+    # TODO: parameterize delta_r throughout
     filtration = [0.01 * i for i in range(1600)]
     filtration_filename = "filtration.txt"
     with open(filtration_filename, 'w') as f:
