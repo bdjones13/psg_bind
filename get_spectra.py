@@ -62,7 +62,7 @@ def get_spectra(P, pdbid, delta_r, min_r, filtration_count):
     shutil.copy("../../test/one_complex/snapshots_vertex.txt", "snapshots_vertex.txt")
     shutil.copy("../../test/one_complex/snapshots_edge.txt", "snapshots_edge.txt")
     shutil.copy("../../test/one_complex/snapshots_facet.txt", "snapshots_facet.txt")
-    # os.system(f"hermes {xyz_filename} {filtration_filename} 100 {delta_r}")
+    # os.system(f"hermes {xyz_filename} {filtration_filename} 100 {delta_r} > hermes_output.txt")
     spectra = read_spectra()
 
     # clean up
