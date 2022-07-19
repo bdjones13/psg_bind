@@ -22,7 +22,7 @@ def read_from_cache(all_df, column_labels):
         temp_skeleton_df = skeleton_df.copy()
         for column in temp_skeleton_df.columns:
             if column in temp_df.columns:
-                temp_skeleton_df.loc[temp_skeleton_df.index.isin(temp_df.index),column] = temp_df.loc[:,column]
+                temp_skeleton_df.loc[temp_skeleton_df.index.isin(temp_df.index), column] = temp_df.loc[:, column]
         # temp_skeleton_df[temp_skeleton_df.index.isin(temp_df.index)] = temp_df
         features = temp_skeleton_df
     else:
@@ -33,7 +33,7 @@ def read_from_cache(all_df, column_labels):
 
 
 def save_summary_results(r_m, r_b, r_a, rmse_m, rmse_b, rmse_a):
-    result_list_float = [datetime.datetime.now(), r_m, r_b,r_a, rmse_m, rmse_b, rmse_a]
+    result_list_float = [datetime.datetime.now(), r_m, r_b, r_a, rmse_m, rmse_b, rmse_a]
     result_list_str = [str(f) for f in result_list_float]
     paramstring = ",".join(result_list_str) + "\n"
     print(paramstring)
@@ -45,9 +45,9 @@ def parse_arguments(arguments, MAX_CORES):
     # read in input data from command line arguments
     # returns a dictionary with number of cores, num_cores, and number of
     # times to compute the GBR correlation, test_count.
-    # default to 1 core and 3 tests
+    # default to 1 core and 1 test
     if len(arguments) == 1:
-        parsed_arguments = {"num_cores": 1, "test_count": 3}
+        parsed_arguments = {"num_cores": 1, "test_count": 1}
     elif len(arguments) == 3:
         parsed_arguments = {"num_cores": min(MAX_CORES, int(arguments[1])), "test_count": int(arguments[2])}
     else:
@@ -57,7 +57,8 @@ def parse_arguments(arguments, MAX_CORES):
 
     return parsed_arguments
 
-def get_basic_feature_descriptions(pro_lig_element_pairs,statistics_list):
+
+def get_basic_feature_descriptions(pro_lig_element_pairs, statistics_list):
     feature_descriptions = []
     cutoff = 12.0
     for atom_description in pro_lig_element_pairs:
@@ -68,13 +69,12 @@ def get_basic_feature_descriptions(pro_lig_element_pairs,statistics_list):
         }
         for statistic in statistics_list:
             temp_description["measurements"].append({
-                    "dim": 0,
-                    "statistic": statistic,
-                    "value": "integral",
-                })
+                "dim": 0,
+                "statistic": statistic,
+                "value": "integral",
+            })
         feature_descriptions.append(temp_description)
     return feature_descriptions
-
 
 
 def add_feature_label(feature_description):
@@ -87,10 +87,9 @@ def add_feature_label(feature_description):
     return
 
 
-
 def build_feature_descriptions(pro_lig_element_pairs, statistics_list):
     feature_descriptions = []
-    feature_descriptions = feature_descriptions + get_basic_feature_descriptions(pro_lig_element_pairs,statistics_list)
+    feature_descriptions = feature_descriptions + get_basic_feature_descriptions(pro_lig_element_pairs, statistics_list)
 
     for feature_description in feature_descriptions:
         add_feature_label(feature_description)
