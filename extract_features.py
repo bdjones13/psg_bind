@@ -115,14 +115,13 @@ def extract_feature(protein, ligand, feature, pdbid):
             measurements.append(0)
         return measurements
 
-    spectra = get_spectra(P, pdbid)
+    spectra = get_spectra(P, pdbid, feature["delta_r"])
 
     measurements = []
     for measurement in feature["measurements"]:
         persistent_statistic = get_spectrum_statistic(spectra[measurement["dim"]], measurement["statistic"])
         if measurement["value"] == "integral":
-            delta_r = 0.01
-            area = get_area_under_plot(persistent_statistic, delta_r)
+            area = get_area_under_plot(persistent_statistic, feature["delta_r"])
         else:
             raise Exception("invalid measurement value (use 'integral').")
         measurements.append(area)

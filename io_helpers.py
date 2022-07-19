@@ -61,10 +61,12 @@ def parse_arguments(arguments, MAX_CORES):
 def get_basic_feature_descriptions(pro_lig_element_pairs, statistics_list):
     feature_descriptions = []
     cutoff = 12.0
+    delta_r = 0.01
     for atom_description in pro_lig_element_pairs:
         temp_description = {
             "atom_description": atom_description,
             "cutoff": cutoff,
+            "delta_r": delta_r,
             "measurements": []
         }
         for statistic in statistics_list:

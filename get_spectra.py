@@ -40,7 +40,7 @@ def read_spectra():
     return spectra
 
 
-def get_spectra(P, pdbid):
+def get_spectra(P, pdbid, delta_r):
     # make temporary directory, call HERMES, read in spectra, and delete the temporary files
     if os.path.isdir(f"temp/{pdbid}"):
         shutil.rmtree(f"temp/{pdbid}")
@@ -50,7 +50,7 @@ def get_spectra(P, pdbid):
 
     # setup input for HERMES
     # TODO: parameterize delta_r throughout
-    filtration = [0.01 * i for i in range(1600)]
+    filtration = [delta_r * i for i in range(1600)]
     filtration_filename = "filtration.txt"
     with open(filtration_filename, 'w') as f:
         write = csv.writer(f, delimiter=' ')
@@ -62,7 +62,7 @@ def get_spectra(P, pdbid):
     shutil.copy("../../test/one_complex/snapshots_vertex.txt", "snapshots_vertex.txt")
     shutil.copy("../../test/one_complex/snapshots_edge.txt", "snapshots_edge.txt")
     shutil.copy("../../test/one_complex/snapshots_facet.txt", "snapshots_facet.txt")
-    # os.system(f"hermes {xyz_filename} {filtration_filename} 100 0.01")
+    # os.system(f"hermes {xyz_filename} {filtration_filename} 100 {delta_r}")
     spectra = read_spectra()
 
     # clean up
