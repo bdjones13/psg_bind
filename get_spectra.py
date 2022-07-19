@@ -12,18 +12,22 @@ def atom_group_to_xyz(P, filename):
 
 
 def get_spectrum(filename):
+    TOL = 0.001
     with open(filename) as fp:
         line_lists = []
         for line in fp.readlines():
             line_list = line.split()  # turn into list
-            line_list = [round(float(line_elt), 5) for line_elt in line_list]  # convert str to float
+            line_list = [float(line_elt) for line_elt in line_list]  # convert str to float
+            line_list = [0.0 if x < TOL else x for x in line_list]
             line_lists.append(line_list)
 
     # make uniform length by right-padding with NaN
-    max_len = max([len(line_list) for line_list in line_lists])
+    # this is time consuming. Is the longest necessarily the final?
+    max_len = len(line_lists[-1])
+    # max_len = max([len(line_list) for line_list in line_lists])
     for line_list in line_lists:
-        while len(line_list) < max_len:  # TODO: would be more efficient to calculate number of NaN then do a for loop
-            line_list.append(np.nan)
+        amount_to_add = max_len - len(line_list)
+        line_list.extend([np.nan]*amount_to_add)
 
     spectrum_df = pd.DataFrame(line_lists)
     return spectrum_df
@@ -49,6 +53,7 @@ def get_spectra(P, pdbid, delta_r, min_r, filtration_count):
     os.chdir(f"temp/{pdbid}")
 
     # setup input for HERMES
+    # TODO: should take the square root?
     filtration = [min_r + delta_r * i for i in range(filtration_count)]
     filtration_filename = "filtration.txt"
     with open(filtration_filename, 'w') as f:
