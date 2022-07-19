@@ -42,7 +42,6 @@ def read_spectra():
 
 def get_spectra(P, pdbid, delta_r, min_r, filtration_count):
     # make temporary directory, call HERMES, read in spectra, and delete the temporary files
-    print(f"{pdbid}: get spectra",flush=True)
     if os.path.isdir(f"temp/{pdbid}"):
         shutil.rmtree(f"temp/{pdbid}")
 
@@ -74,10 +73,10 @@ def get_spectra(P, pdbid, delta_r, min_r, filtration_count):
 
 def get_persistent_betti_small_points(P, delta_r, min_r, filtration_count):
     # need 3 series of length filtration_count, betti0, betti1, betti2. Betti1 and 2 both all zero.
-    betti_1 = np.zeros([1,filtration_count])
-    betti_2 = np.zeros([1,filtration_count])
+    betti_1 = np.zeros((filtration_count,))
+    betti_2 = np.zeros((filtration_count,))
     if len(P) == 1:
-        betti_0 = np.ones([1,filtration_count])
+        betti_0 = np.ones((filtration_count,))
     elif len(P) == 2:
         # number components = 2 until r = distance, then 1
         a = P[0,:]
@@ -88,8 +87,8 @@ def get_persistent_betti_small_points(P, delta_r, min_r, filtration_count):
             + np.power(a[2] - b[2], 2)
         )
         dist_steps = int((dist-min_r)/delta_r)
-        components_2 = 2*np.ones([dist_steps, 1])
-        components_1 = np.ones([filtration_count-dist_steps, 1])
+        components_2 = 2*np.ones((dist_steps,))
+        components_1 = np.ones((filtration_count-dist_steps,))
         betti_0 = np.concatenate([components_2, components_1], axis=0)
     elif len(P) == 3:
         # number components = 3 until r = min(distance, then 1
@@ -116,9 +115,9 @@ def get_persistent_betti_small_points(P, delta_r, min_r, filtration_count):
         dist_steps1 = int((distances[0] - min_r) / delta_r)
         dist_steps2 = int((distances[1] - distances[0]) / delta_r)
 
-        components_3 = 3 * np.ones([dist_steps1, 1])
-        components_2 = 2 * np.ones([dist_steps2, 1])
-        components_1 = np.ones([filtration_count - dist_steps2, 1])
+        components_3 = 3 * np.ones((dist_steps1,))
+        components_2 = 2 * np.ones((dist_steps2,))
+        components_1 = np.ones((filtration_count - dist_steps2,))
         betti_0 = np.concatenate([components_3, components_2, components_1], axis=0)
     else:
         raise Exception(f"get_persistent_betti_small_points called with incorrect number of points: {len(P)}")

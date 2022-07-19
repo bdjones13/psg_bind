@@ -61,7 +61,7 @@ def parse_arguments(arguments, MAX_CORES):
 def get_basic_feature_descriptions(pro_lig_element_pairs, statistics_list):
     feature_descriptions = []
     cutoff = 12.0
-    delta_r = 0.01
+    delta_r = 0.05
     min_r = 0.0
     max_r = cutoff
     for atom_description in pro_lig_element_pairs:

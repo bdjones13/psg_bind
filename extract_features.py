@@ -134,6 +134,7 @@ def extract_feature(protein, ligand, feature, pdbid):
                     raise Exception("invalid measurement value (use 'integral').") # TODO: implement Top feature
         return measurements
 
+    print(f"""{pdbid}: get spectra {feature["atom_description"]}""", flush=True)
     spectra = get_spectra(P, pdbid, feature["delta_r"], feature["min_r"], feature["filtration_count"])
 
     measurements = []

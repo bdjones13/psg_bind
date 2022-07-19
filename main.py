@@ -41,7 +41,7 @@ def compute_features(df, pro_elements, pro_ele_rad, directory, lig_elements, lig
 
 
 def main(arguments):
-    use_cache = True
+    use_cache = False
     save_to_cache = True
 
     MAX_CORES = 32  # to prevent accidentally allocating too many cores by command line
