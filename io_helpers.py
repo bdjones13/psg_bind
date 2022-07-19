@@ -62,11 +62,16 @@ def get_basic_feature_descriptions(pro_lig_element_pairs, statistics_list):
     feature_descriptions = []
     cutoff = 12.0
     delta_r = 0.01
+    min_r = 0.0
+    max_r = 4.0
     for atom_description in pro_lig_element_pairs:
         temp_description = {
             "atom_description": atom_description,
             "cutoff": cutoff,
             "delta_r": delta_r,
+            "min_r": min_r,
+            "max_r": max_r,
+            "filtration_count": int((max_r-min_r)/delta_r),
             "measurements": []
         }
         for statistic in statistics_list:

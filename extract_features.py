@@ -75,7 +75,11 @@ def get_sec(x):
 
 
 def get_spectrum_statistic(spectrum, alpha):
-    # TODO: is this over all eigenvalues or only the nonzero?
+    # From PSG paper:
+    #       "To verify our hypothesis, we compute the summation, mean, maximal, SD, variance of its eigenvalues,
+    #       and \left(\tilde \lambda_2\right)_0^{r+0} of the persistent spectra of L^{r + 0}_0 over various
+    #       filtration radii r"
+    # so these mean, max, etc. are over the persistent spectra, which includes both harmonic and non-harmonic
     if alpha == "mean":
         return spectrum.mean(axis=1, skipna=True)
     elif alpha == "sum":
@@ -90,8 +94,8 @@ def get_spectrum_statistic(spectrum, alpha):
         # min nonzero element in each row
         # apply to each row a function that gets the first nonzero element
         return spectrum.apply(lambda x: get_sec(x), axis=1)
-        # spectrum.apply(lambda x: x.iloc[x.to_numpy().nonzero() [0][0]], axis=1)
     elif alpha == "Top":
+        # TODO: top
         return -2
         # count of zero elements in each row
     else:
@@ -115,7 +119,7 @@ def extract_feature(protein, ligand, feature, pdbid):
             measurements.append(0)
         return measurements
 
-    spectra = get_spectra(P, pdbid, feature["delta_r"])
+    spectra = get_spectra(P, pdbid, feature["delta_r"], feature["min_r"], feature["filtration_count"])
 
     measurements = []
     for measurement in feature["measurements"]:
