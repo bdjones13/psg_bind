@@ -2,7 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 import datetime
-
+import math
 
 def write_to_cache(feature_df):
     # save the calculated feature values for later use
@@ -59,19 +59,34 @@ def parse_arguments(arguments, MAX_CORES):
 
 
 def get_basic_feature_descriptions(pro_lig_element_pairs, statistics_list):
+
+    filtration_r = []
+    curr_r = 1.0
+    while curr_r < 40.0:
+        filtration_r.append(curr_r)
+        if curr_r < 10:
+            curr_r = curr_r + 0.1
+        elif curr_r < 20:
+            curr_r = curr_r + 0.5
+        elif curr_r < 40:
+            curr_r = curr_r + 1.0
+    alpha_filtration = [math.pow(r, 2) for r in filtration_r]
+
     feature_descriptions = []
-    cutoff = 12.0
-    delta_r = 0.05
-    min_r = 0.0
-    max_r = cutoff
+    cutoff = 40 # 12.0 to mimic T_bind
+    # delta_r = 0.01 # 0.05 for speed
+    # min_r = 0.0
+    # max_r = math.pow(cutoff,2)
     for atom_description in pro_lig_element_pairs:
         temp_description = {
             "atom_description": atom_description,
             "cutoff": cutoff,
-            "delta_r": delta_r,
-            "min_r": min_r,
-            "max_r": max_r,
-            "filtration_count": int((max_r-min_r)/delta_r),
+            "filtration_r" : filtration_r,
+            "alpha_filtration": alpha_filtration,
+            # "delta_r": delta_r,
+            # "min_r": min_r,
+            # "max_r": max_r,
+            # "filtration_count": int((max_r-min_r)/delta_r),
             "measurements": []
         }
         for statistic in statistics_list:
@@ -80,6 +95,10 @@ def get_basic_feature_descriptions(pro_lig_element_pairs, statistics_list):
                 "statistic": statistic,
                 "value": "integral",
             })
+        temp_description["measurements"].append({
+            "dim": 0,
+            "statistic": "Top"
+        })
         feature_descriptions.append(temp_description)
     return feature_descriptions
 
@@ -89,8 +108,11 @@ def add_feature_label(feature_description):
     for measurement in feature_description["measurements"]:
         betti_i = measurement["dim"]
         statistic = measurement["statistic"]
-        value = measurement["value"]
-        measurement["label"] = f"{element_types}-{statistic}-betti{betti_i}-{value}"
+        if statistic == "Top":
+            measurement["label"] = f"{element_types}-{statistic}-betii{betti_i}-r" # r value added in dataframe later
+        else:
+            value = measurement["value"]
+            measurement["label"] = f"{element_types}-{statistic}-betti{betti_i}-{value}"
     return
 
 

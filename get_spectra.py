@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 import shutil
 import os
@@ -22,9 +24,7 @@ def get_spectrum(filename):
             line_lists.append(line_list)
 
     # make uniform length by right-padding with NaN
-    # this is time consuming. Is the longest necessarily the final?
-    max_len = len(line_lists[-1])
-    # max_len = max([len(line_list) for line_list in line_lists])
+    max_len = len(line_lists[-1])  # longest line should be the last
     for line_list in line_lists:
         amount_to_add = max_len - len(line_list)
         line_list.extend([np.nan]*amount_to_add)
@@ -44,7 +44,7 @@ def read_spectra():
     return spectra
 
 
-def get_spectra(P, pdbid, delta_r, min_r, filtration_count):
+def get_spectra(P, pdbid):
     # make temporary directory, call HERMES, read in spectra, and delete the temporary files
     if os.path.isdir(f"temp/{pdbid}"):
         shutil.rmtree(f"temp/{pdbid}")
@@ -53,12 +53,28 @@ def get_spectra(P, pdbid, delta_r, min_r, filtration_count):
     os.chdir(f"temp/{pdbid}")
 
     # setup input for HERMES
-    # TODO: should take the square root?
-    filtration = [min_r + delta_r * i for i in range(filtration_count)]
+    # filtration setup using radius squared
+    # 1 <= r < 10, dr = 0.1
+    # 10 <= r < 20 dr = 0.5
+    # 20 <= r <= 40 dr = 1.0
+    filtration_r = []
+    curr_r = 1.0
+    while curr_r < 40.0:
+        filtration_r.append(curr_r)
+        if curr_r < 10:
+            curr_r = curr_r + 0.1
+        elif curr_r < 20:
+            curr_r = curr_r + 0.5
+        elif curr_r < 40:
+            curr_r = curr_r + 1.0
+    alpha_filtration = [math.pow(r,2) for r in filtration_r]
+
+    # filtration = [min_r + delta_r * i for i in range(filtration_count)]
+    # filtration_r = [math.sqrt(r) for r in filtration]
     filtration_filename = "filtration.txt"
     with open(filtration_filename, 'w') as f:
         write = csv.writer(f, delimiter=' ')
-        write.writerow(filtration)
+        write.writerow(alpha_filtration)
     xyz_filename = f"{pdbid}.xyz"
     atom_group_to_xyz(P, xyz_filename)
 
@@ -68,7 +84,9 @@ def get_spectra(P, pdbid, delta_r, min_r, filtration_count):
     shutil.copy("../../test/one_complex/snapshots_facet.txt", "snapshots_facet.txt")
     # os.system(f"hermes {xyz_filename} {filtration_filename} 100 {delta_r} > hermes_output.txt")
     spectra = read_spectra()
-
+    for spectrum in spectra:
+        spectrum["r"] = filtration_r
+        spectrum.set_index(["r"],inplace=True)
     # clean up
     os.chdir("../..")
     shutil.rmtree(f"temp/{pdbid}")

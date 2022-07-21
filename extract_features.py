@@ -9,9 +9,9 @@ from get_spectra import get_spectra, get_persistent_betti_small_points
 #     def __init__(self, minimum, maximum):
 #         self.minimum = minimum
 #         self.maximum = maximum
-#         self.bars = set()
+#         self.observations = set()
 #
-#     def should_contain(self, bar, direction):
+#     def should_contain(self, observation):
 #         if direction == "birth" and (self.minimum <= bar.birth <= self.maximum) and not math.isinf(bar.death):
 #             return True
 #         elif direction == "death" and (self.minimum < bar.death <= self.maximum):
@@ -52,20 +52,10 @@ from get_spectra import get_spectra, get_persistent_betti_small_points
 #         cumulative = cumulative + p.birth
 #     return cumulative
 #
-# def get_binned(dgms, i, bin_bounds, direction):
-#     dgm = dgms[i]
-#
-#     # transform bin boundaries into object of class TF_Bin
-#     tf_bins = [TF_Bin(bounds[0], bounds[1]) for bounds in bin_bounds]
-#
-#     # perform the binning
-#     for p in dgm:
-#         for tf_bin in tf_bins:
-#             if tf_bin.should_contain(p, direction):
-#                 tf_bin.add_bar(p)
-#                 break
-#
-#     return tf_bins
+# def get_binned(harmonic_spectrum, bin_bounds):
+#     bin_indicies = np.digitize(harmonic_spectrum, bin_bounds)
+#     with_bins = np.concatenate([harmonic_spectrum,bin_indicies],axis=1)
+#     return with_bins
 
 def get_sec(x):
     nonzero = x.to_numpy().nonzero()
@@ -99,7 +89,8 @@ def get_spectrum_statistic(spectrum, alpha):
         # get boolean index matrix, cast to int (1 if 0 value, else 0), and count by row
         # nonzero values -> False -> 0 -> do not count to sum
         # zero values -> True -> 1 -> do count to sum
-        return (spectrum == 0).astype(int).sum(axis=1)
+        harmonic_spectrum = (spectrum == 0).astype(int).sum(axis=1)
+        return harmonic_spectrum
     else:
         raise Exception("invalid spectrum statistic")
 
@@ -127,24 +118,24 @@ def extract_feature(protein, ligand, feature, pdbid):
                 measurements.append(0)
             else:
                 persistent_betti = get_persistent_betti_small_points(P,feature["delta_r"], feature["min_r"], feature["filtration_count"])
-                if measurement["value"] == "integral":
-                    area = get_area_under_plot(persistent_betti[0],feature["delta_r"])
-                    measurements.append(area)
-                else:
-                    raise Exception("invalid measurement value (use 'integral').") # TODO: implement Top feature
+                measurements.append(persistent_betti[measurement["dim"]])
         return measurements
 
     print(f"""{pdbid}: get spectra {feature["atom_description"]}""", flush=True)
-    spectra = get_spectra(P, pdbid, feature["delta_r"], feature["min_r"], feature["filtration_count"])
+    spectra = get_spectra(P, pdbid)
 
     measurements = []
     for measurement in feature["measurements"]:
         persistent_statistic = get_spectrum_statistic(spectra[measurement["dim"]], measurement["statistic"])
-        if measurement["value"] == "integral":
+        if measurement["statistic"] == "Top":
+            measurements.append(persistent_statistic)
+            print("top")
+        elif measurement["value"] == "integral":
             area = get_area_under_plot(persistent_statistic, feature["delta_r"])
+            measurements.append(area)
         else:
             raise Exception("invalid measurement value (use 'integral').")
-        measurements.append(area)
+
     return measurements
 
 

@@ -80,7 +80,11 @@ def main(arguments):
     column_labels = []
     for feature_description in feature_descriptions:
         for measurement in feature_description["measurements"]:
-            column_labels.append(measurement["label"])
+            if measurement["statistic"] == "Top":
+                for r in feature_description["filtration_r"]:
+                    column_labels.append(f"{measurement['label']}{r}")
+            else:
+               column_labels.append(measurement["label"])
     if use_cache:
         all_features = read_from_cache(all_df, column_labels)
     else:
@@ -112,26 +116,26 @@ def main(arguments):
         write_to_cache(all_features)
 
     #    # Use Gradient Boosted Regressor to predict Binding Affinities
-    correlations_rmse = pd.DataFrame(index=range(test_count), columns=["corr", "rmse"])
-    correlations_rmse_split = np.array_split(correlations_rmse, num_cores)
-    pool = Pool(num_cores)
-    correlations_rmse = pd.concat(pool.starmap(train_test_correlation, zip(correlations_rmse_split,
-                                                                           repeat(all_features),
-                                                                           repeat(refined_df),
-                                                                           repeat(core_df))))
-    pool.close()
-    pool.join()
-
-    r_m = np.median(correlations_rmse["corr"])
-    r_b = np.max(correlations_rmse["corr"])
-    r_a = np.average(correlations_rmse["corr"])
-    rmse_m = np.median(correlations_rmse["rmse"])
-    rmse_b = np.min(correlations_rmse["rmse"])
-    rmse_a = np.average(correlations_rmse["rmse"])
+    # correlations_rmse = pd.DataFrame(index=range(test_count), columns=["corr", "rmse"])
+    # correlations_rmse_split = np.array_split(correlations_rmse, num_cores)
+    # pool = Pool(num_cores)
+    # correlations_rmse = pd.concat(pool.starmap(train_test_correlation, zip(correlations_rmse_split,
+    #                                                                        repeat(all_features),
+    #                                                                        repeat(refined_df),
+    #                                                                        repeat(core_df))))
+    # pool.close()
+    # pool.join()
     #
-    print(correlations_rmse)
-
-    save_summary_results(r_m, r_b, r_a, rmse_m, rmse_b, rmse_a)
+    # r_m = np.median(correlations_rmse["corr"])
+    # r_b = np.max(correlations_rmse["corr"])
+    # r_a = np.average(correlations_rmse["corr"])
+    # rmse_m = np.median(correlations_rmse["rmse"])
+    # rmse_b = np.min(correlations_rmse["rmse"])
+    # rmse_a = np.average(correlations_rmse["rmse"])
+    # #
+    # print(correlations_rmse)
+    #
+    # save_summary_results(r_m, r_b, r_a, rmse_m, rmse_b, rmse_a)
     return all_features
 
 
