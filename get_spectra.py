@@ -44,7 +44,7 @@ def read_spectra():
     return spectra
 
 
-def get_spectra(P, pdbid):
+def get_spectra(P, pdbid, filtration_r, alpha_filtration):
     # make temporary directory, call HERMES, read in spectra, and delete the temporary files
     if os.path.isdir(f"temp/{pdbid}"):
         shutil.rmtree(f"temp/{pdbid}")
@@ -57,17 +57,17 @@ def get_spectra(P, pdbid):
     # 1 <= r < 10, dr = 0.1
     # 10 <= r < 20 dr = 0.5
     # 20 <= r <= 40 dr = 1.0
-    filtration_r = []
-    curr_r = 1.0
-    while curr_r < 40.0:
-        filtration_r.append(curr_r)
-        if curr_r < 10:
-            curr_r = curr_r + 0.1
-        elif curr_r < 20:
-            curr_r = curr_r + 0.5
-        elif curr_r < 40:
-            curr_r = curr_r + 1.0
-    alpha_filtration = [math.pow(r,2) for r in filtration_r]
+    # filtration_r = []
+    # curr_r = 1.0
+    # while curr_r < 40.0:
+    #     filtration_r.append(curr_r)
+    #     if curr_r < 10:
+    #         curr_r = curr_r + 0.1
+    #     elif curr_r < 20:
+    #         curr_r = curr_r + 0.5
+    #     elif curr_r < 40:
+    #         curr_r = curr_r + 1.0
+    # alpha_filtration = [math.pow(r,2) for r in filtration_r]
 
     # filtration = [min_r + delta_r * i for i in range(filtration_count)]
     # filtration_r = [math.sqrt(r) for r in filtration]
@@ -82,7 +82,7 @@ def get_spectra(P, pdbid):
     shutil.copy("../../test/one_complex/snapshots_vertex.txt", "snapshots_vertex.txt")
     shutil.copy("../../test/one_complex/snapshots_edge.txt", "snapshots_edge.txt")
     shutil.copy("../../test/one_complex/snapshots_facet.txt", "snapshots_facet.txt")
-    # os.system(f"hermes {xyz_filename} {filtration_filename} 100 {delta_r} > hermes_output.txt")
+    # os.system(f"hermes {xyz_filename} {filtration_filename} 100 0 > hermes_output.txt")
     spectra = read_spectra()
     for spectrum in spectra:
         spectrum["r"] = filtration_r
@@ -94,8 +94,9 @@ def get_spectra(P, pdbid):
     return spectra
 
 
-def get_persistent_betti_small_points(P, delta_r, min_r, filtration_count):
+def get_persistent_betti_small_points(P, filtration_r):
     # need 3 series of length filtration_count, betti0, betti1, betti2. Betti1 and 2 both all zero.
+    filtration_count = len(filtration_r)
     betti_1 = np.zeros((filtration_count,))
     betti_2 = np.zeros((filtration_count,))
     if len(P) == 1:
@@ -109,10 +110,17 @@ def get_persistent_betti_small_points(P, delta_r, min_r, filtration_count):
             + np.power(a[1] - b[1], 2)
             + np.power(a[2] - b[2], 2)
         )
-        dist_steps = int((dist-min_r)/delta_r)
-        components_2 = 2*np.ones((dist_steps,))
-        components_1 = np.ones((filtration_count-dist_steps,))
-        betti_0 = np.concatenate([components_2, components_1], axis=0)
+        betti_0 = np.ones((filtration_count,))
+        for i in range(filtration_count):
+            r = filtration_r[i]
+            if r < dist:
+                betti_0[i] = 2
+            else:
+                break
+        # dist_steps = int((dist-filtration[0])/delta_r)
+        # components_2 = 2*np.ones((dist_steps,))
+        # components_1 = np.ones((filtration_count-dist_steps,))
+        # betti_0 = np.concatenate([components_2, components_1], axis=0)
     elif len(P) == 3:
         # number components = 3 until r = min(distance, then 1
         a = P[0, :]
@@ -134,14 +142,24 @@ def get_persistent_betti_small_points(P, delta_r, min_r, filtration_count):
             + np.power(b[2] - c[2], 2)
         )
         distances = sorted([dist1,dist2,dist3])
+        betti_0 = np.ones((filtration_count,))
+        for i in range(filtration_count):
+            r = filtration_r[i]
+            if r < distances[0]:
+                betti_0[i] = 3
+            elif r < distances[1]:
+                betti_0[i] = 2
+            else:
+                break
 
-        dist_steps1 = int((distances[0] - min_r) / delta_r)
-        dist_steps2 = int((distances[1] - distances[0]) / delta_r)
 
-        components_3 = 3 * np.ones((dist_steps1,))
-        components_2 = 2 * np.ones((dist_steps2,))
-        components_1 = np.ones((filtration_count - dist_steps2,))
-        betti_0 = np.concatenate([components_3, components_2, components_1], axis=0)
+        # dist_steps1 = int((distances[0] - min_r) / delta_r)
+        # dist_steps2 = int((distances[1] - distances[0]) / delta_r)
+        #
+        # components_3 = 3 * np.ones((dist_steps1,))
+        # components_2 = 2 * np.ones((dist_steps2,))
+        # components_1 = np.ones((filtration_count - dist_steps2,))
+        # betti_0 = np.concatenate([components_3, components_2, components_1], axis=0)
     else:
         raise Exception(f"get_persistent_betti_small_points called with incorrect number of points: {len(P)}")
-    return [betti_0,betti_1,betti_2]
+    return [list(betti_0),list(betti_1),list(betti_2)]

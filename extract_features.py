@@ -90,16 +90,21 @@ def get_spectrum_statistic(spectrum, alpha):
         # nonzero values -> False -> 0 -> do not count to sum
         # zero values -> True -> 1 -> do count to sum
         harmonic_spectrum = (spectrum == 0).astype(int).sum(axis=1)
-        return harmonic_spectrum
+        return list(harmonic_spectrum.values)
     else:
         raise Exception("invalid spectrum statistic")
 
 
-def get_area_under_plot(persistent_statistic, delta_r):
+def get_area_under_plot(persistent_statistic, filtration):
     cumulative = 0.0
-    for statistic in persistent_statistic:
+    for i in range(len(persistent_statistic)-1): # -1 to not go over
+        statistic = persistent_statistic.iloc[i]
         if not np.isnan(statistic):
+            delta_r = filtration[i+1]-filtration[i]
             cumulative = cumulative + statistic * delta_r
+    # for statistic in persistent_statistic:
+    #     if not np.isnan(statistic):
+    #         cumulative = cumulative + statistic * delta_r
     return cumulative
 
 
@@ -108,8 +113,12 @@ def extract_feature(protein, ligand, feature, pdbid):
     measurements = []
     # if no atoms in group, return all 0
     if len(P) == 0:
-        for _ in feature["measurements"]:
-            measurements.append(0)
+        for measurement in feature["measurements"]:
+            if measurement["statistic"] == "Top":
+                for _ in feature["filtration_r"]:
+                    measurements.append(0)
+            else:
+                measurements.append(0)
         return measurements
     if len(P) <= 3:
         for measurement in feature["measurements"]:
@@ -117,21 +126,21 @@ def extract_feature(protein, ligand, feature, pdbid):
                 # alpha complex not defined for <= 3 points, so non-harmonic specra all 0.
                 measurements.append(0)
             else:
-                persistent_betti = get_persistent_betti_small_points(P,feature["delta_r"], feature["min_r"], feature["filtration_count"])
-                measurements.append(persistent_betti[measurement["dim"]])
+                persistent_betti = get_persistent_betti_small_points(P, feature["filtration_r"])
+                measurements = measurements + persistent_betti[measurement["dim"]]
         return measurements
 
     print(f"""{pdbid}: get spectra {feature["atom_description"]}""", flush=True)
-    spectra = get_spectra(P, pdbid)
+    spectra = get_spectra(P, pdbid,feature["filtration_r"],feature["alpha_filtration"])
 
     measurements = []
     for measurement in feature["measurements"]:
         persistent_statistic = get_spectrum_statistic(spectra[measurement["dim"]], measurement["statistic"])
         if measurement["statistic"] == "Top":
-            measurements.append(persistent_statistic)
+            measurements = measurements + persistent_statistic
             print("top")
         elif measurement["value"] == "integral":
-            area = get_area_under_plot(persistent_statistic, feature["delta_r"])
+            area = get_area_under_plot(persistent_statistic, feature["filtration_r"])
             measurements.append(area)
         else:
             raise Exception("invalid measurement value (use 'integral').")

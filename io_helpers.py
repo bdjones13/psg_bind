@@ -62,10 +62,10 @@ def get_basic_feature_descriptions(pro_lig_element_pairs, statistics_list):
 
     filtration_r = []
     curr_r = 1.0
-    while curr_r < 40.0:
+    while curr_r < 5.0:
         filtration_r.append(curr_r)
         if curr_r < 10:
-            curr_r = curr_r + 0.1
+            curr_r = curr_r + 0.25
         elif curr_r < 20:
             curr_r = curr_r + 0.5
         elif curr_r < 40:
@@ -73,7 +73,7 @@ def get_basic_feature_descriptions(pro_lig_element_pairs, statistics_list):
     alpha_filtration = [math.pow(r, 2) for r in filtration_r]
 
     feature_descriptions = []
-    cutoff = 40 # 12.0 to mimic T_bind
+    cutoff = 12 # 12.0 to mimic T_bind
     # delta_r = 0.01 # 0.05 for speed
     # min_r = 0.0
     # max_r = math.pow(cutoff,2)
