@@ -83,6 +83,7 @@ def get_basic_feature_descriptions(pro_lig_element_pairs, statistics_list):
             "cutoff": cutoff,
             "filtration_r" : filtration_r,
             "alpha_filtration": alpha_filtration,
+            "reuse_spectra": False,
             # "delta_r": delta_r,
             # "min_r": min_r,
             # "max_r": max_r,

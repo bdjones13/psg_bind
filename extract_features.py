@@ -131,7 +131,7 @@ def extract_feature(protein, ligand, feature, pdbid):
         return measurements
 
     print(f"""{pdbid}: get spectra {feature["atom_description"]}""", flush=True)
-    spectra = get_spectra(P, pdbid,feature["filtration_r"],feature["alpha_filtration"])
+    spectra = get_spectra(P, pdbid,feature["filtration_r"],feature["alpha_filtration"],feature["reuse_spectra"],feature["atom_description"])
 
     measurements = []
     for measurement in feature["measurements"]:

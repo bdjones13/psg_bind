@@ -33,63 +33,53 @@ def get_spectrum(filename):
     return spectrum_df
 
 
-def read_spectra():
+def read_spectra(pdbid, atom_description):
+    directory = f"temp/{pdbid}/{atom_description}"
+    os.chdir(directory)
     filenames = ["snapshots_vertex.txt", "snapshots_edge.txt", "snapshots_facet.txt"]
-    filenames = [filename for filename in filenames]
     spectra = []
 
     for filename in filenames:
         spectrum_df = get_spectrum(filename)
         spectra.append(spectrum_df)
+    os.chdir("../../../")
     return spectra
 
+def generate_spectra(P,pdbid,alpha_filtration, atom_description):
+    directory = f"temp/{pdbid}/{atom_description}"
 
-def get_spectra(P, pdbid, filtration_r, alpha_filtration):
-    # make temporary directory, call HERMES, read in spectra, and delete the temporary files
-    if os.path.isdir(f"temp/{pdbid}"):
-        shutil.rmtree(f"temp/{pdbid}")
+    if os.path.isdir(directory):
+        shutil.rmtree(directory)
+    os.makedirs(directory)
 
-    os.makedirs(f"temp/{pdbid}")
-    os.chdir(f"temp/{pdbid}")
+    os.chdir(directory)
 
-    # setup input for HERMES
-    # filtration setup using radius squared
-    # 1 <= r < 10, dr = 0.1
-    # 10 <= r < 20 dr = 0.5
-    # 20 <= r <= 40 dr = 1.0
-    # filtration_r = []
-    # curr_r = 1.0
-    # while curr_r < 40.0:
-    #     filtration_r.append(curr_r)
-    #     if curr_r < 10:
-    #         curr_r = curr_r + 0.1
-    #     elif curr_r < 20:
-    #         curr_r = curr_r + 0.5
-    #     elif curr_r < 40:
-    #         curr_r = curr_r + 1.0
-    # alpha_filtration = [math.pow(r,2) for r in filtration_r]
-
-    # filtration = [min_r + delta_r * i for i in range(filtration_count)]
-    # filtration_r = [math.sqrt(r) for r in filtration]
     filtration_filename = "filtration.txt"
     with open(filtration_filename, 'w') as f:
         write = csv.writer(f, delimiter=' ')
         write.writerow(alpha_filtration)
-    xyz_filename = f"{pdbid}.xyz"
+    xyz_filename = f"{pdbid}-{atom_description}.xyz"
     atom_group_to_xyz(P, xyz_filename)
 
     # TODO: replace with call to HERMES
-    shutil.copy("../../test/one_complex/snapshots_vertex.txt", "snapshots_vertex.txt")
-    shutil.copy("../../test/one_complex/snapshots_edge.txt", "snapshots_edge.txt")
-    shutil.copy("../../test/one_complex/snapshots_facet.txt", "snapshots_facet.txt")
+    shutil.copy("../../../test/one_complex/snapshots_vertex.txt", "snapshots_vertex.txt")
+    shutil.copy("../../../test/one_complex/snapshots_edge.txt", "snapshots_edge.txt")
+    shutil.copy("../../../test/one_complex/snapshots_facet.txt", "snapshots_facet.txt")
     # os.system(f"hermes {xyz_filename} {filtration_filename} 100 0 > hermes_output.txt")
-    spectra = read_spectra()
+    os.chdir("../../..")
+
+def spectra_exists(pdbid, atom_description):
+    return os.path.isdir(f"temp/{pdbid}/{atom_description}")
+
+def get_spectra(P, pdbid, filtration_r, alpha_filtration, reuse_spectra,atom_description):
+    # make temporary directory, call HERMES, read in spectra, and delete the temporary files
+    if not reuse_spectra or not spectra_exists(pdbid, atom_description):
+        generate_spectra(P,pdbid, alpha_filtration,atom_description)
+
+    spectra = read_spectra(pdbid, atom_description)
     for spectrum in spectra:
         spectrum["r"] = filtration_r
         spectrum.set_index(["r"],inplace=True)
-    # clean up
-    os.chdir("../..")
-    shutil.rmtree(f"temp/{pdbid}")
 
     return spectra
 
