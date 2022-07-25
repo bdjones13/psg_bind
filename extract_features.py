@@ -1,35 +1,42 @@
 import numpy as np
-# import math
+import math
 from get_atom_group import get_atom_group
 from get_spectra import get_spectra, get_persistent_betti_small_points
+from get_tf import get_tf
+from distance_matrix import distance_matrix
 
+class TF_Bin:
 
-# class TF_Bin:
-#
-#     def __init__(self, minimum, maximum):
-#         self.minimum = minimum
-#         self.maximum = maximum
-#         self.observations = set()
-#
-#     def should_contain(self, observation):
-#         if direction == "birth" and (self.minimum <= bar.birth <= self.maximum) and not math.isinf(bar.death):
-#             return True
-#         elif direction == "death" and (self.minimum < bar.death <= self.maximum):
-#             return True
-#         else:
-#             return False
-#
-#     def add_bar(self, bar):
-#         self.bars.add(bar)
-#
-#     def count(self):
-#         return len(self.bars)
-#
-#     def sum_of_lengths(self):
-#         cumulative = 0.0
-#         for tf_bar in self.bars:
-#             cumulative = cumulative + (tf_bar.death - tf_bar.birth)
-#         return cumulative
+    def __init__(self, minimum, maximum):
+        self.minimum = minimum
+        self.maximum = maximum
+        self.bars = set()
+
+    def should_contain(self, bar, direction):
+        if direction == "birth":
+            if (self.minimum <= bar.birth <= self.maximum) and not math.isinf(bar.death):
+                return True
+            elif self.minimum == bar.birth:
+                print("min=birth ", self.minimum)
+        elif direction == "death":
+            if (self.minimum < bar.death <= self.maximum):
+                return True
+            elif self.minimum == bar.death:
+                print("min=death ", self.minimum)
+        else:
+            return False
+
+    def add_bar(self, bar):
+        self.bars.add(bar)
+
+    def count(self):
+        return len(self.bars)
+
+    def sum_of_lengths(self):
+        cumulative = 0.0
+        for tf_bar in self.bars:
+            cumulative = cumulative + (tf_bar.death - tf_bar.birth)
+        return cumulative
 #
 #
 # def sum_betti_lengths(dgms, i):
@@ -56,6 +63,22 @@ from get_spectra import get_spectra, get_persistent_betti_small_points
 #     bin_indicies = np.digitize(harmonic_spectrum, bin_bounds)
 #     with_bins = np.concatenate([harmonic_spectrum,bin_indicies],axis=1)
 #     return with_bins
+
+def get_binned(dgms, i, bin_bounds, direction):
+    dgm = dgms[i]
+
+    # transform bin boundaries into object of class TF_Bin
+    tf_bins = [TF_Bin(bounds[0], bounds[1]) for bounds in bin_bounds]
+
+    # perform the binning
+    for p in dgm:
+        for tf_bin in tf_bins:
+            if tf_bin.should_contain(p, direction):
+                tf_bin.add_bar(p)
+                break
+
+    return tf_bins
+
 
 def get_sec(x):
     nonzero = x.to_numpy().nonzero()
@@ -115,8 +138,12 @@ def extract_feature(protein, ligand, feature, pdbid):
     if len(P) == 0:
         for measurement in feature["measurements"]:
             if measurement["statistic"] == "Top":
-                for _ in feature["filtration_r"]:
-                    measurements.append(0)
+                if feature["use_dionysus"]:
+                    for _ in measurement["bins"]:
+                        measurements.append(0)
+                else:
+                    for _ in feature["filtration_r"]:
+                        measurements.append(0)
             else:
                 measurements.append(0)
         return measurements
@@ -125,19 +152,28 @@ def extract_feature(protein, ligand, feature, pdbid):
             if measurement["statistic"] != "Top":
                 # alpha complex not defined for <= 3 points, so non-harmonic specra all 0.
                 measurements.append(0)
-            else:
+            elif not feature["use_dionysus"]:
                 persistent_betti = get_persistent_betti_small_points(P, feature["filtration_r"])
                 measurements = measurements + persistent_betti[measurement["dim"]]
         return measurements
 
     print(f"""{pdbid}: get spectra {feature["atom_description"]}""", flush=True)
     spectra = get_spectra(P, pdbid,feature["filtration_r"],feature["alpha_filtration"],feature["reuse_spectra"],feature["atom_description"])
+    if feature["use_dionysus"]:
+        d = distance_matrix(P, use_fri=False, agst="agst")
+        dgms = get_tf(d, is_vr=True, dim=3, cutoff=feature["cutoff"])
+    else:
+        dgms = None
 
     measurements = []
     for measurement in feature["measurements"]:
         persistent_statistic = get_spectrum_statistic(spectra[measurement["dim"]], measurement["statistic"])
         if measurement["statistic"] == "Top":
-            measurements = measurements + persistent_statistic
+            if feature["use_dionysus"]:
+                binned = get_binned(dgms, measurement["dim"], measurement["bins"], measurement["direction"])
+                measurements = measurements + [tf_bin.count() for tf_bin in binned]
+            else:
+                measurements = measurements + persistent_statistic
             print("top")
         elif measurement["value"] == "integral":
             area = get_area_under_plot(persistent_statistic, feature["filtration_r"])
