@@ -25,7 +25,13 @@ def compute_features(df, pro_elements, pro_ele_rad, directory, lig_elements, lig
         for feature in feature_descriptions:
             all_measured = True
             for measurement in feature["measurements"]:
-                if np.isnan(df.loc[pdbid, measurement["label"]]):
+                if measurement["statistic"] == "Top" and feature["use_dionysus"]:
+                    for i in range(len(measurement["bins"])):
+                        label = measurement["label"] + "-bin" + str(i)
+                        if np.isnan(df.loc[pdbid,label]):
+                            all_measured = False
+                            break
+                elif np.isnan(df.loc[pdbid, measurement["label"]]):
                     all_measured = False
                     break
             if not all_measured:
@@ -81,8 +87,12 @@ def main(arguments):
     for feature_description in feature_descriptions:
         for measurement in feature_description["measurements"]:
             if measurement["statistic"] == "Top":
-                for r in feature_description["filtration_r"]:
-                    column_labels.append(f"{measurement['label']}{r}")
+                if feature_description["use_dionysus"]:
+                    for i in range(len(measurement["bins"])):
+                        column_labels.append(f"{measurement['label']}-bin{i}")
+                else:
+                    for r in feature_description["filtration_r"]:
+                        column_labels.append(f"{measurement['label']}{r}")
             else:
                column_labels.append(measurement["label"])
     if use_cache:
