@@ -1,0 +1,160 @@
+1w8l
+1f9g
+1utp
+1bra
+1w8l: get spectra C-C
+1utp: get spectra C-C
+1bra: get spectra C-C
+1f9g: get spectra C-C
+1f9g: get spectra C-O
+1w8l: get spectra C-N
+1bra: get spectra C-N
+1utp: get spectra C-N
+1w8l: get spectra C-O
+1f9g: get spectra N-C
+1utp: get spectra N-C
+1f9g: get spectra N-O
+1bra: get spectra N-C
+1utp: get spectra N-N
+1f9g: get spectra O-C
+1bra: get spectra N-N
+1utp: get spectra O-C
+1w8l: get spectra N-C
+1f9g: get spectra O-O
+1bra: get spectra O-C
+1w8l: get spectra N-N
+1utp: get spectra O-N
+1f9g: get spectra S-C
+1w8l: get spectra N-O
+1bra: get spectra O-N
+1f9g: get spectra S-O
+1w8l: get spectra O-C
+1utp: get spectra S-C
+1f9g  done
+1b74
+1b74: get spectra C-C
+1bra: get spectra S-C
+1utp: get spectra S-N
+1w8l: get spectra O-N
+1bra: get spectra S-N
+1utp  done
+1u2y
+1u2y: get spectra C-C
+1bra  done
+1y1m
+1y1m: get spectra C-C
+1w8l: get spectra O-O
+1w8l: get spectra S-C
+1w8l: get spectra S-N
+1b74: get spectra C-N
+1w8l: get spectra S-O
+1u2y: get spectra C-N
+1w8l  done
+1wkm
+1wkm: get spectra C-C
+1y1m: get spectra C-N
+1u2y: get spectra C-O
+1b74: get spectra C-O
+1y1m: get spectra C-O
+1wkm: get spectra C-N
+1b74: get spectra N-C
+1u2y: get spectra N-C
+1b74: get spectra N-N
+1u2y: get spectra N-N
+1b74: get spectra N-O
+1u2y: get spectra N-O
+1y1m: get spectra N-C
+1wkm: get spectra C-O
+1b74: get spectra O-C
+1y1m: get spectra N-N
+1u2y: get spectra O-C
+1y1m: get spectra N-O
+1b74: get spectra O-N
+1u2y: get spectra O-N
+1y1m: get spectra O-C
+1b74: get spectra O-O
+1u2y: get spectra O-O
+1y1m: get spectra O-N
+1b74: get spectra S-C
+1wkm: get spectra C-S
+1u2y: get spectra S-C
+1y1m: get spectra O-O
+1b74: get spectra S-N
+1u2y: get spectra S-O
+1b74: get spectra S-O
+1u2y  done
+1y1m: get spectra S-C
+1b74  done
+2hdq
+2hdq: get spectra C-C
+1y1m: get spectra S-N
+1y1m: get spectra S-O
+1y1m  done
+1wkm: get spectra N-C
+1wkm: get spectra N-N
+2hdq: get spectra C-O
+1wkm: get spectra N-O
+1wkm: get spectra N-S
+1wkm: get spectra O-C
+2hdq: get spectra C-S
+1wkm: get spectra O-N
+2hdq: get spectra N-C
+1wkm: get spectra O-O
+2hdq: get spectra N-O
+1wkm: get spectra O-S
+2hdq: get spectra N-S
+1wkm: get spectra S-C
+2hdq: get spectra O-C
+1wkm  done
+2a31
+2a31: get spectra C-C
+2hdq: get spectra O-O
+2hdq: get spectra O-S
+2hdq: get spectra S-C
+2a31: get spectra C-N
+2hdq  done
+2a31: get spectra C-O
+2a31: get spectra N-C
+2a31: get spectra N-N
+2a31: get spectra N-O
+2a31: get spectra O-C
+2a31: get spectra O-N
+2a31: get spectra O-O
+2a31: get spectra S-C
+2a31: get spectra S-N
+2a31: get spectra S-O
+2a31  done
+          corr      rmse
+0 -7.17643e-16  0.696106
+2022-07-19 17:39:50.772112,-7.176433007659103e-16,-7.176433007659103e-16,-7.176433007659103e-16,0.6961064745794253,0.6961064745794253,0.6961064745794253
+
+JobId=58225270 JobName=small_psgbind
+   UserId=jones657(6062780) GroupId=eceng(2008) MCS_label=N/A
+   Priority=58870 Nice=0 Account=general QOS=jones657
+   JobState=RUNNING Reason=None Dependency=(null)
+   Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
+   RunTime=00:44:57 TimeLimit=01:00:00 TimeMin=N/A
+   SubmitTime=2022-07-19T16:54:22 EligibleTime=2022-07-19T16:54:22
+   AccrueTime=2022-07-19T16:54:22
+   StartTime=2022-07-19T16:54:55 EndTime=2022-07-19T17:54:55 Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2022-07-19T16:54:55 Scheduler=Backfill
+   Partition=general-long AllocNode:Sid=dev-intel14:19710
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=lac-372
+   BatchHost=lac-372
+   NumNodes=1 NumCPUs=4 NumTasks=1 CPUs/Task=4 ReqB:S:C:T=0:0:*:*
+   TRES=cpu=4,mem=16G,node=1,billing=2490
+   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
+   MinCPUsNode=4 MinMemoryNode=16G MinTmpDiskNode=0
+   Features=[intel14|intel16|intel18|amr|nvf|nal|nif] DelayBoot=00:00:00
+   OverSubscribe=OK Contiguous=0 Licenses=(null) Network=(null)
+   Command=/mnt/ufs18/home-205/jones657/Documents/psg_bind/submit.sbatch
+   WorkDir=/mnt/ufs18/home-205/jones657/Documents/psg_bind
+   Comment=stdout=/mnt/ufs18/home-205/jones657/Documents/psg_bind/./output/%x-58225270.out 
+   StdErr=/mnt/ufs18/home-205/jones657/Documents/psg_bind/./output/small_psgbind-58225270.out
+   StdIn=/dev/null
+   StdOut=/mnt/ufs18/home-205/jones657/Documents/psg_bind/./output/small_psgbind-58225270.out
+   Power=
+   MailUser=jones657@msu.edu MailType=INVALID_DEPEND,BEGIN,END,FAIL,REQUEUE,STAGE_OUT
+   
+

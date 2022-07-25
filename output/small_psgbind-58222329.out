@@ -1,0 +1,72 @@
+1w8l
+2hdq
+1w8l: get spectra
+2hdq: get spectra
+2hdq: get spectra
+1w8l: get spectra
+1w8l: get spectra
+2hdq: get spectra
+2hdq: get spectra
+1w8l: get spectra
+2hdq: get spectra
+1w8l: get spectra
+2hdq: get spectra
+1w8l: get spectra
+2hdq: get spectra
+1w8l: get spectra
+2hdq: get spectra
+1w8l: get spectra
+1w8l: get spectra
+2hdq: get spectra
+2hdq: get spectra
+1w8l: get spectra
+2hdq  done
+1w8l: get spectra
+1w8l: get spectra
+1w8l  done
+main.py:37: VisibleDeprecationWarning: Creating an ndarray from ragged nested sequences (which is a list-or-tuple of lists-or-tuples-or ndarrays with different lengths or shapes) is deprecated. If you meant to do this, you must specify 'dtype=object' when creating the ndarray
+  features_np = np.array(features)
+Traceback (most recent call last):
+  File "main.py", line 139, in <module>
+    main(sys.argv)
+  File "main.py", line 112, in main
+    write_to_cache(all_features)
+  File "/mnt/ufs18/home-205/jones657/Documents/psg_bind/io_helpers.py", line 10, in write_to_cache
+    feature_df.to_csv(fname)
+  File "/mnt/home/jones657/anaconda3/envs/py36/lib/python3.6/site-packages/pandas/core/generic.py", line 3170, in to_csv
+    formatter.save()
+  File "/mnt/home/jones657/anaconda3/envs/py36/lib/python3.6/site-packages/pandas/io/formats/csvs.py", line 190, in save
+    compression=dict(self.compression_args, method=self.compression),
+  File "/mnt/home/jones657/anaconda3/envs/py36/lib/python3.6/site-packages/pandas/io/common.py", line 493, in get_handle
+    f = open(path_or_buf, mode, encoding=encoding, errors=errors, newline="")
+FileNotFoundError: [Errno 2] No such file or directory: 'input/cache/v2007.csv'
+JobId=58222329 JobName=small_psgbind
+   UserId=jones657(6062780) GroupId=eceng(2008) MCS_label=N/A
+   Priority=59388 Nice=0 Account=general QOS=jones657
+   JobState=RUNNING Reason=None Dependency=(null)
+   Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
+   RunTime=00:09:49 TimeLimit=01:00:00 TimeMin=N/A
+   SubmitTime=2022-07-19T15:38:44 EligibleTime=2022-07-19T15:38:44
+   AccrueTime=2022-07-19T15:38:44
+   StartTime=2022-07-19T15:39:07 EndTime=2022-07-19T16:39:07 Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2022-07-19T15:39:07 Scheduler=Main
+   Partition=general-short AllocNode:Sid=dev-intel14:19710
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=css-116
+   BatchHost=css-116
+   NumNodes=1 NumCPUs=4 NumTasks=1 CPUs/Task=4 ReqB:S:C:T=0:0:*:*
+   TRES=cpu=4,mem=16G,node=1,billing=2490
+   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
+   MinCPUsNode=4 MinMemoryNode=16G MinTmpDiskNode=0
+   Features=[intel14|intel16|intel18|amr|nvf|nal|nif] DelayBoot=00:00:00
+   OverSubscribe=OK Contiguous=0 Licenses=(null) Network=(null)
+   Command=/mnt/ufs18/home-205/jones657/Documents/psg_bind/submit.sbatch
+   WorkDir=/mnt/ufs18/home-205/jones657/Documents/psg_bind
+   Comment=stdout=/mnt/ufs18/home-205/jones657/Documents/psg_bind/./output/%x-58222329.out 
+   StdErr=/mnt/ufs18/home-205/jones657/Documents/psg_bind/./output/small_psgbind-58222329.out
+   StdIn=/dev/null
+   StdOut=/mnt/ufs18/home-205/jones657/Documents/psg_bind/./output/small_psgbind-58222329.out
+   Power=
+   MailUser=jones657@msu.edu MailType=INVALID_DEPEND,BEGIN,END,FAIL,REQUEUE,STAGE_OUT
+   
+

@@ -1,0 +1,68 @@
+2hdq
+1w8l
+1w8l: get spectra C-C
+2hdq: get spectra C-C
+multiprocessing.pool.RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/mnt/home/jones657/anaconda3/envs/py36/lib/python3.6/multiprocessing/pool.py", line 119, in worker
+    result = (True, func(*args, **kwds))
+  File "/mnt/home/jones657/anaconda3/envs/py36/lib/python3.6/multiprocessing/pool.py", line 47, in starmapstar
+    return list(itertools.starmap(args[0], args[1]))
+  File "main.py", line 32, in compute_features
+    features = features + extract_features_by_description(protein, ligand, feature, pdbid)
+  File "/mnt/ufs18/home-205/jones657/Documents/psg_bind/extract_features.py", line 152, in extract_features_by_description
+    return extract_feature(protein, ligand, feature, pdbid)
+  File "/mnt/ufs18/home-205/jones657/Documents/psg_bind/extract_features.py", line 134, in extract_feature
+    spectra = get_spectra(P, pdbid,feature["filtration_r"],feature["alpha_filtration"],feature["reuse_spectra"],feature["atom_description"])
+  File "/mnt/ufs18/home-205/jones657/Documents/psg_bind/get_spectra.py", line 79, in get_spectra
+    spectra = read_spectra(pdbid, atom_description)
+  File "/mnt/ufs18/home-205/jones657/Documents/psg_bind/get_spectra.py", line 43, in read_spectra
+    spectrum_df = get_spectrum(filename)
+  File "/mnt/ufs18/home-205/jones657/Documents/psg_bind/get_spectra.py", line 18, in get_spectrum
+    with open(filename) as fp:
+FileNotFoundError: [Errno 2] No such file or directory: 'snapshots_vertex.txt'
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "main.py", line 143, in <module>
+    main(sys.argv)
+  File "main.py", line 107, in main
+    repeat(feature_descriptions))))
+  File "/mnt/home/jones657/anaconda3/envs/py36/lib/python3.6/multiprocessing/pool.py", line 274, in starmap
+    return self._map_async(func, iterable, starmapstar, chunksize).get()
+  File "/mnt/home/jones657/anaconda3/envs/py36/lib/python3.6/multiprocessing/pool.py", line 644, in get
+    raise self._value
+FileNotFoundError: [Errno 2] No such file or directory: 'snapshots_vertex.txt'
+JobId=58946206 JobName=tiny_psgbind
+   UserId=jones657(6062780) GroupId=eceng(2008) MCS_label=N/A
+   Priority=49952 Nice=0 Account=general QOS=jones657
+   JobState=RUNNING Reason=None Dependency=(null)
+   Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
+   RunTime=00:00:13 TimeLimit=00:15:00 TimeMin=N/A
+   SubmitTime=2022-07-24T19:01:21 EligibleTime=2022-07-24T19:01:21
+   AccrueTime=2022-07-24T19:01:21
+   StartTime=2022-07-24T19:01:36 EndTime=2022-07-24T19:16:36 Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2022-07-24T19:01:36 Scheduler=Main
+   Partition=general-long AllocNode:Sid=dev-intel14:25685
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=css-088
+   BatchHost=css-088
+   NumNodes=1 NumCPUs=2 NumTasks=1 CPUs/Task=2 ReqB:S:C:T=0:0:*:*
+   TRES=cpu=2,mem=4G,node=1,billing=622
+   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
+   MinCPUsNode=2 MinMemoryNode=4G MinTmpDiskNode=0
+   Features=[intel14|intel16|intel18|amr|nvf|nal|nif] DelayBoot=00:00:00
+   OverSubscribe=OK Contiguous=0 Licenses=(null) Network=(null)
+   Command=/mnt/ufs18/home-205/jones657/Documents/psg_bind/submit.sbatch
+   WorkDir=/mnt/ufs18/home-205/jones657/Documents/psg_bind
+   Comment=stdout=/mnt/ufs18/home-205/jones657/Documents/psg_bind/./output/%x-58946206.out 
+   StdErr=/mnt/ufs18/home-205/jones657/Documents/psg_bind/./output/tiny_psgbind-58946206.out
+   StdIn=/dev/null
+   StdOut=/mnt/ufs18/home-205/jones657/Documents/psg_bind/./output/tiny_psgbind-58946206.out
+   Power=
+   MailUser=jones657@msu.edu MailType=INVALID_DEPEND,BEGIN,END,FAIL,REQUEUE,STAGE_OUT
+   
+

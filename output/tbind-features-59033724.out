@@ -1,0 +1,32 @@
+about to train and test
+[0.8023770772861, 0.80757747275668, 0.802812049013898, 1.4690626731228775, 1.4566090167752055, 1.4685298658569936]
+JobId=59033724 JobName=tbind-features
+   UserId=jones657(6062780) GroupId=eceng(2008) MCS_label=N/A
+   Priority=10326 Nice=0 Account=general QOS=jones657
+   JobState=RUNNING Reason=None Dependency=(null)
+   Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
+   RunTime=00:01:38 TimeLimit=01:30:00 TimeMin=N/A
+   SubmitTime=2022-07-25T15:11:01 EligibleTime=2022-07-25T15:11:01
+   AccrueTime=2022-07-25T15:11:01
+   StartTime=2022-07-25T15:18:28 EndTime=2022-07-25T16:48:28 Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2022-07-25T15:18:27 Scheduler=Backfill
+   Partition=general-long AllocNode:Sid=dev-intel14:8992
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=amr-186
+   BatchHost=amr-186
+   NumNodes=1 NumCPUs=25 NumTasks=1 CPUs/Task=25 ReqB:S:C:T=0:0:*:*
+   TRES=cpu=25,mem=50G,node=1,billing=7782
+   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
+   MinCPUsNode=25 MinMemoryNode=50G MinTmpDiskNode=0
+   Features=[intel14|intel16|intel18|amr|nvf|nal|nif] DelayBoot=00:00:00
+   OverSubscribe=OK Contiguous=0 Licenses=(null) Network=(null)
+   Command=/mnt/ufs18/home-205/jones657/Documents/psg_bind/features.sbatch
+   WorkDir=/mnt/ufs18/home-205/jones657/Documents/psg_bind
+   Comment=stdout=/mnt/ufs18/home-205/jones657/Documents/psg_bind/./output/%x-59033724.out 
+   StdErr=/mnt/ufs18/home-205/jones657/Documents/psg_bind/./output/tbind-features-59033724.out
+   StdIn=/dev/null
+   StdOut=/mnt/ufs18/home-205/jones657/Documents/psg_bind/./output/tbind-features-59033724.out
+   Power=
+   MailUser=jones657@msu.edu MailType=INVALID_DEPEND,BEGIN,END,FAIL,REQUEUE,STAGE_OUT
+   
+
