@@ -22,9 +22,9 @@ def execute_gbr(feature_df, train_df, test_df,n_est=20000,max_d=8,min_s=6,lr=0.0
     return test_predicted
 
 
-def train_test_correlation(correlation_df, feature_df, train_df, test_df):
+def train_test_correlation(correlation_df, feature_df, train_df, test_df,n_est=20000,max_d=8,min_s=6,lr=0.005,subs=0.7,max_feat='sqrt'):
     for i in range(len(correlation_df)):
-        test_predicted = execute_gbr(feature_df=feature_df, train_df=train_df, test_df=test_df)
+        test_predicted = execute_gbr(feature_df=feature_df, train_df=train_df, test_df=test_df,n_est=20000,max_d=8,min_s=6,lr=0.005,subs=0.7,max_feat='sqrt')
         # plt.scatter(test_predicted,test_df["num"].to_numpy())
         correlation_df.iloc[i, 0] = np.corrcoef(test_predicted, test_df["num"].to_numpy())[1, 0]
         correlation_df.iloc[i, 1] = mean_squared_error(test_df["num"].to_numpy(), test_predicted, squared=False)

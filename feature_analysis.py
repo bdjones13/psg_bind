@@ -1,17 +1,26 @@
 import pandas as pd
 from ml_model import train_test_correlation
-from itertools import repeat
+from itertools import repeat, product
 import numpy as np
 from multiprocessing import Pool
 import re
-def train_test(all_features,refined_df, core_df, num_cores, test_count):
+def train_test(all_features,refined_df, core_df, num_cores, test_count,n_est=20000,max_d=8,min_s=6,lr=0.005,subs=0.7,max_feat='sqrt'):
     correlations_rmse = pd.DataFrame(index=range(test_count), columns=["corr", "rmse"])
     correlations_rmse_split = np.array_split(correlations_rmse, num_cores)
     pool = Pool(num_cores)
+
+
     correlations_rmse = pd.concat(pool.starmap(train_test_correlation, zip(correlations_rmse_split,
                                                                            repeat(all_features),
                                                                            repeat(refined_df),
-                                                                           repeat(core_df))))
+                                                                           repeat(core_df),
+                                                                           repeat(n_est),
+                                                                           repeat(max_d),
+                                                                           repeat(min_s),
+                                                                           repeat(lr),
+                                                                           repeat(subs),
+                                                                           repeat(max_feat)
+                                                                           )))
     pool.close()
     pool.join()
 
@@ -124,7 +133,7 @@ all_df = pd.concat([refined_df, core_df], ignore_index=True)
 all_df["id"] = all_df["id"].astype("string")
 core_df["num"] = core_df["num"].astype(float)
 
-features_df = pd.read_csv("input/cache/v2007.csv",index_col="id")
+features_df = pd.read_csv("input/cache/v2007-updated.csv",index_col="id")
 
 statistics_list = ["mean", "sum", "max", "SD", "Var", "Sec","Top"]
 
@@ -136,20 +145,45 @@ for group in feature_groups:
 # core_df = core_df[0:10]
 # refined_df = refined_df[0:10]
 
-num_cores = 25
-test_count = 25
+num_cores = 1
+test_count = 1
 
 outfile = "output/feature_analysis.csv"
 results = []
 print("about to train and test")
-group_statistics = train_test(features_df, refined_df, core_df, num_cores, test_count)
-results.append(["all",group_statistics[0],group_statistics[3]])
-for group in feature_groups:
-    group_df = features_df.loc[:,group]
-    group_statistics = train_test(group_df, refined_df, core_df, num_cores, test_count)
-    group_label = ";".join(group)
-    results.append([group_label,group_statistics[0],group_statistics[3]])
-    print(group_label, group_statistics,flush=True)
-df = pd.DataFrame(results,columns=["label", "r_m","rmse_m"])
+
+n_est = 20000
+max_d = 8
+min_s = 6
+lr = 0.005
+subs = 0.7
+max_feat = 'sqrt'
+
+n_ests = [500,1000,10000,20000,30000]
+max_ds = [3,5,8,10]
+min_ss = [3,6,10]
+lrs = [0.005, 0.05, 0.1]
+subss = [0.7,1.0]
+max_feats = ['sqrt',None]
+param_space = [n_ests,max_ds, min_ss, lrs, subss, max_feats]
+
+for param_set in product(*param_space):
+    group_statistics = train_test(features_df, refined_df, core_df, num_cores, test_count,*param_set)
+    results.append(["all",group_statistics[0],group_statistics[3],*param_set])
+    print(results)
+df = pd.DataFrame(results,columns=["label", "r_m","rmse_m","n_ests","max_ds", "min_ss","lrs", "subss", "max_feats"])
 df = df.set_index("label")
 df.to_csv(outfile)
+
+# for group in feature_groups:
+#     group_df = features_df.loc[:,group]
+#     for param_set in product(*param_space):
+#         print(param_set)
+#
+#     # group_statistics = train_test(group_df, refined_df, core_df, num_cores, test_count)
+#     # group_label = ";".join(group)
+#     # results.append([group_label,group_statistics[0],group_statistics[3]])
+#     # print(group_label, group_statistics,flush=True)
+# df = pd.DataFrame(results,columns=["label", "r_m","rmse_m"])
+# df = df.set_index("label")
+# df.to_csv(outfile)
