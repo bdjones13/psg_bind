@@ -133,12 +133,12 @@ def get_basic_feature_descriptions(pro_lig_element_pairs, statistics_list):
             # "filtration_count": int((max_r-min_r)/delta_r),
             "measurements": []
         }
-        # for statistic in statistics_list:
-        #     temp_description["measurements"].append({
-        #         "dim": 0,
-        #         "statistic": statistic,
-        #         "value": "integral",
-        #     })
+        for statistic in statistics_list:
+            temp_description["measurements"].append({
+                "dim": 0,
+                "statistic": statistic,
+                "value": "integral",
+            })
         temp_description["measurements"].append({
             "dim": 0,
             "statistic": "Top",

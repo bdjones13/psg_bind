@@ -62,10 +62,10 @@ def generate_spectra(P,pdbid,alpha_filtration, atom_description):
     atom_group_to_xyz(P, xyz_filename)
 
     # TODO: replace with call to HERMES
-    shutil.copy("../../../test/one_complex/snapshots_vertex.txt", "snapshots_vertex.txt")
-    shutil.copy("../../../test/one_complex/snapshots_edge.txt", "snapshots_edge.txt")
-    shutil.copy("../../../test/one_complex/snapshots_facet.txt", "snapshots_facet.txt")
-    # os.system(f"hermes {xyz_filename} {filtration_filename} 100 0 > hermes_output.txt")
+    #shutil.copy("../../../test/one_complex/snapshots_vertex.txt", "snapshots_vertex.txt")
+    #shutil.copy("../../../test/one_complex/snapshots_edge.txt", "snapshots_edge.txt")
+    #shutil.copy("../../../test/one_complex/snapshots_facet.txt", "snapshots_facet.txt")
+    os.system(f"hermes {xyz_filename} {filtration_filename} 100 0 > hermes_output.txt")
     os.chdir("../../..")
 
 def spectra_exists(pdbid, atom_description):

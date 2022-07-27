@@ -117,6 +117,8 @@ def get_geometric_groups():
 
 core_df = pd.read_csv("input/v2007_core_list.csv")
 refined_df = pd.read_csv("input/v2007_refine_list.csv")
+#core_df = core_df[0:2]
+#refined_df = refined_df[0:2]
 all_df = pd.concat([refined_df, core_df], ignore_index=True)
 # change types
 all_df["id"] = all_df["id"].astype("string")
@@ -140,7 +142,8 @@ test_count = 25
 outfile = "output/feature_analysis.csv"
 results = []
 print("about to train and test")
-# group_statistics = train_test(features_df, refined_df, core_df, num_cores, test_count)
+group_statistics = train_test(features_df, refined_df, core_df, num_cores, test_count)
+results.append(["all",group_statistics[0],group_statistics[3]])
 for group in feature_groups:
     group_df = features_df.loc[:,group]
     group_statistics = train_test(group_df, refined_df, core_df, num_cores, test_count)

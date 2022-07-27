@@ -31,6 +31,12 @@ def compute_features(df, pro_elements, pro_ele_rad, directory, lig_elements, lig
                         if np.isnan(df.loc[pdbid,label]):
                             all_measured = False
                             break
+                elif measurement["statistic"] == "Top":
+                    for r in feature["filtration_r"]:
+                        label = measurement["label"] + str(r)
+                        if np.isnan(df.loc[pdbid,label]):
+                            all_measured = False
+                            break
                 elif np.isnan(df.loc[pdbid, measurement["label"]]):
                     all_measured = False
                     break
@@ -50,7 +56,7 @@ def main(arguments):
     use_cache = False
     save_to_cache = True
 
-    MAX_CORES = 32  # to prevent accidentally allocating too many cores by command line
+    MAX_CORES = 128  # to prevent accidentally allocating too many cores by command line
     parsed_arguments = parse_arguments(arguments, MAX_CORES)
     num_cores = parsed_arguments["num_cores"]
     test_count = parsed_arguments["test_count"]
@@ -59,8 +65,8 @@ def main(arguments):
     refined_df = pd.read_csv("input/v2007_refine_list.csv")
 
     # un-comment to limit tests to fewer proteins
-    refined_df = refined_df[0:1]
-    core_df = core_df[0:1]
+    # refined_df = refined_df[0:2]
+    # core_df = core_df[0:2]
 
     # combine refined set and core set for calculating. Will be separated later for training
     #  and testing the random forest
@@ -125,27 +131,27 @@ def main(arguments):
     if save_to_cache:
         write_to_cache(all_features)
 
-    #    # Use Gradient Boosted Regressor to predict Binding Affinities
-    # correlations_rmse = pd.DataFrame(index=range(test_count), columns=["corr", "rmse"])
-    # correlations_rmse_split = np.array_split(correlations_rmse, num_cores)
-    # pool = Pool(num_cores)
-    # correlations_rmse = pd.concat(pool.starmap(train_test_correlation, zip(correlations_rmse_split,
-    #                                                                        repeat(all_features),
-    #                                                                        repeat(refined_df),
-    #                                                                        repeat(core_df))))
-    # pool.close()
-    # pool.join()
+       # Use Gradient Boosted Regressor to predict Binding Affinities
+    correlations_rmse = pd.DataFrame(index=range(test_count), columns=["corr", "rmse"])
+    correlations_rmse_split = np.array_split(correlations_rmse, num_cores)
+    pool = Pool(num_cores)
+    correlations_rmse = pd.concat(pool.starmap(train_test_correlation, zip(correlations_rmse_split,
+                                                                           repeat(all_features),
+                                                                           repeat(refined_df),
+                                                                           repeat(core_df))))
+    pool.close()
+    pool.join()
+    
+    r_m = np.median(correlations_rmse["corr"])
+    r_b = np.max(correlations_rmse["corr"])
+    r_a = np.average(correlations_rmse["corr"])
+    rmse_m = np.median(correlations_rmse["rmse"])
+    rmse_b = np.min(correlations_rmse["rmse"])
+    rmse_a = np.average(correlations_rmse["rmse"])
     #
-    # r_m = np.median(correlations_rmse["corr"])
-    # r_b = np.max(correlations_rmse["corr"])
-    # r_a = np.average(correlations_rmse["corr"])
-    # rmse_m = np.median(correlations_rmse["rmse"])
-    # rmse_b = np.min(correlations_rmse["rmse"])
-    # rmse_a = np.average(correlations_rmse["rmse"])
-    # #
-    # print(correlations_rmse)
-    #
-    # save_summary_results(r_m, r_b, r_a, rmse_m, rmse_b, rmse_a)
+    print(correlations_rmse)
+    
+    save_summary_results(r_m, r_b, r_a, rmse_m, rmse_b, rmse_a)
     return all_features
 
 

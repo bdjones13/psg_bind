@@ -4,13 +4,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def execute_gbr(feature_df, train_df, test_df):
+def execute_gbr(feature_df, train_df, test_df,n_est=20000,max_d=8,min_s=6,lr=0.005,subs=0.7,max_feat='sqrt'):
     rng = np.random.default_rng()  # necessary to reset the random seed within each parallel process
     rand_seed = rng.integers(0, 100)
-    regressor = GradientBoostingRegressor(n_estimators=20000, max_depth=8,
-                                          min_samples_split=6, learning_rate=0.005,
-                                          loss='ls', subsample=0.7,  # 'ls' deprecated but used for HPCC compatibility
-                                          max_features='sqrt', random_state=rand_seed)
+    regressor = GradientBoostingRegressor(n_estimators=n_est, max_depth=max_d,
+                                          min_samples_split=min_s, learning_rate=lr,
+                                          loss='ls', subsample=subs,  # 'ls' deprecated but used for HPCC compatibility
+                                          max_features=max_feat, random_state=rand_seed)
 
     train_features = feature_df[feature_df.index.isin(train_df.id)].to_numpy()
     test_features = feature_df[feature_df.index.isin(test_df.id)].to_numpy()
